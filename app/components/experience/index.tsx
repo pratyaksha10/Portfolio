@@ -50,7 +50,7 @@ const Experience = () => {
         const shiftProgress = Math.min(1, Math.max(0, (d - shiftStart) / 0.12));
         const smoothEase = shiftProgress * shiftProgress * (3 - 2 * shiftProgress);
 
-        const finalX = -4; // used for desktop only
+        const finalX = -1; // used for desktop only
         const finalY = isMobile ? 0.3 : -i * diffY;
 
         const targetX = isMobile ? (i * diffX) : (i * diffX) * (1 - smoothEase) + finalX * smoothEase;

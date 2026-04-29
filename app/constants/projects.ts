@@ -24,7 +24,7 @@ export const PROJECTS: Project[] = [
     title: 'Medium Blogs',
     date: 'Sept 2022',
     subtext: 'Started publishing blogs on Medium.',
-    url: 'https://medium.com/@pratyakshasharma1476',
+    url: 'https://medium.com/@pratyaksha_',
   },
   {
     title: 'GET - PepsiCo',
