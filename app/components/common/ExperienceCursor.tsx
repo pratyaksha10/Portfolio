@@ -14,10 +14,8 @@ const ExperienceCursor = () => {
   const [snowflakes, setSnowflakes] = useState<{ x: number; y: number; id: number; opacity: number; size: number; vx: number; vy: number }[]>([]);
   const nextSnowflakeId = useRef(0);
 
-  // On mobile there is no mouse — skip all mouse-cursor logic entirely.
-  if (isMobile) return null;
-
   useEffect(() => {
+    if (isMobile) return;
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
 
@@ -94,7 +92,7 @@ const ExperienceCursor = () => {
 
   // Fade out snowflakes using rAF for cross-browser performance
   useEffect(() => {
-    if (activePortalId !== 'projects') return;
+    if (isMobile || activePortalId !== 'projects') return;
 
     let lastTime = 0;
     let rafId: number;
@@ -119,7 +117,7 @@ const ExperienceCursor = () => {
     return () => cancelAnimationFrame(rafId);
   }, [activePortalId]);
 
-  if (!activePortalId) return null;
+  if (isMobile || !activePortalId) return null;
 
   return (
     <div

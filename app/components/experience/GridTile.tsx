@@ -1,12 +1,11 @@
 
 import { Edges, MeshPortalMaterial, Text, TextProps, useScroll } from '@react-three/drei';
-import { useFrame, useThree } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
 import { usePortalStore } from '@stores';
 import gsap from "gsap";
 import { useEffect, useRef } from 'react';
 import { isMobile } from 'react-device-detect';
 import * as THREE from 'three';
-import { TriangleGeometry } from './Triangle';
 
 interface GridTileProps {
   id: string;
@@ -25,7 +24,6 @@ const GridTile = (props: GridTileProps) => {
   const overlayRef = useRef<THREE.Mesh>(null);
   const portalRef = useRef(null);
   const { title, textAlign, children, color, position, id } = props;
-  const { camera } = useThree();
   const setActivePortal = usePortalStore((state) => state.setActivePortal);
   const isActive = usePortalStore((state) => state.activePortalId === id);
   const activePortalId = usePortalStore((state) => state.activePortalId);
@@ -108,7 +106,6 @@ const GridTile = (props: GridTileProps) => {
     setActivePortal(null)
 
     // Unified adaptive duration for all panels (Work, Literature, MyJourney, OtherVentures)
-    const cameraDuration = isMobile ? 1.0 : 1.5;
     const blendDuration = isMobile ? (id === 'other-ventures' ? 0.56 : 0.8) : (id === 'work' ? 0.8 : 1.2);
 
     gsap.to(portalRef.current, {
