@@ -98,13 +98,14 @@ export default function RootLayout({
       <body
         className={`${soriaFont.variable} ${vercettiFont.variable} font-sans antialiased`}
       >
+        {children}
         <Script
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           src={`https://www.googletagmanager.com/gtag/js?id=G-WQVBC5EPNB`}
         />
         <Script
           id="gtag-init"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
@@ -116,6 +117,8 @@ export default function RootLayout({
             `,
           }}
         />
+        <FluidCursorTrailWrapper />
+        <ExperienceCursor />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -134,9 +137,6 @@ export default function RootLayout({
             })
           }}
         />
-        {children}
-        <FluidCursorTrailWrapper />
-        <ExperienceCursor />
       </body>
     </html>
   );

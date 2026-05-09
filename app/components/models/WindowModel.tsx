@@ -32,12 +32,7 @@ const WindowModel = (props: Partial<THREE.Object3D>) => {
 
   const { nodes, materials } = useGLTF('models/window.glb', true ) as GLTFResult
   const data = useScroll();
-  
   useFrame(() => {
-    // Only animate if near the viewport range
-    const d = data.range(0.35, 0.25);
-    if (d <= 0) return;
-
     const b = data.range(0.4, 0.1);
     const c = data.range(0.5, 0.1);
 
@@ -48,14 +43,6 @@ const WindowModel = (props: Partial<THREE.Object3D>) => {
       windowRef.current.rotation.z = 0.5 * Math.PI * c;
     }
   });
-
-  // Use MeshStandardMaterial for better performance
-  useEffect(() => {
-    if (materials.WIN0003_Textures) {
-      const standardMaterial = new THREE.MeshStandardMaterial().copy(materials.WIN0003_Textures);
-      materials.WIN0003_Textures = standardMaterial as any;
-    }
-  }, [materials]);
 
   return (
     <group {...props} dispose={null}>

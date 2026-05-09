@@ -8,7 +8,7 @@ import Hero from "./components/hero";
 
 const Home = () => {
   return (
-    <main>
+    <>
       {/* Hidden semantic HTML for SEO */}
       <div className="sr-only">
         <h1>Pratyaksha | Creative Frontend Engineer Portfolio</h1>
@@ -34,7 +34,7 @@ const Home = () => {
           <Footer/>
         </ScrollWrapper>
       </CanvasLoader>
-    </main>
+    </>
   );
 };
 export default Home;

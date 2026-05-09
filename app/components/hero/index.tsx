@@ -39,14 +39,7 @@ const Hero = () => {
       <StarsContainer />
       <CloudContainer />
       <group position={[0, -25, 5.69]}>
-        <pointLight 
-          castShadow 
-          position={[1, 1, -2.5]} 
-          intensity={60} 
-          distance={10} 
-          shadow-mapSize={[512, 512]}
-          shadow-bias={-0.0001}
-        />
+        <pointLight castShadow position={[1, 1, -2.5]} intensity={60} distance={10} />
         <WindowModel receiveShadow />
         <TextWindow />
       </group>

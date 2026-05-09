@@ -52,12 +52,7 @@ const GridTile = (props: GridTileProps) => {
   }, []);
 
   useFrame(() => {
-    // Only run logic if visible and near viewport range
-    if (!gridRef.current?.visible) return;
-    
     const d = data.range(0.95, 0.05);
-    if (d <= 0) return;
-
     if (isMobile && titleRef.current) {
       /* eslint-disable  @typescript-eslint/no-explicit-any */
       (titleRef.current as any).fillOpacity = d;
@@ -185,7 +180,7 @@ const GridTile = (props: GridTileProps) => {
       <group>
         <mesh position={[0, 0, -0.01]} ref={hoverBoxRef} scale={[0, 0, 0]}>
           <boxGeometry args={[isMobile ? 3.2 : 2.8, isMobile ? 1.1 : 2.8, 0.4]} />
-          <meshStandardMaterial
+          <meshPhysicalMaterial
             color="#444"
             transparent={true}
             opacity={0.3}
@@ -205,7 +200,7 @@ const GridTile = (props: GridTileProps) => {
           </mesh>
         )}
       </group>
-      <MeshPortalMaterial ref={portalRef} blend={0} resolution={isMobile ? 512 : 1024} blur={0}>
+      <MeshPortalMaterial ref={portalRef} blend={0} resolution={0} blur={0}>
         <color attach="background" args={[color]} />
         {children}
       </MeshPortalMaterial>
