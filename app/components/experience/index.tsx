@@ -24,33 +24,31 @@ const Experience = () => {
     color: 'white',
   };
 
-  useFrame((sate, delta) => {
+  useFrame((state, delta) => {
+    // Skip calculations if invisible or portal is active
+    if (!groupRef.current?.visible || isActive) return;
+
     const d = data.range(0.8, 0.2);
     const e = data.range(0.7, 0.2);
 
-    if (groupRef.current && !isActive) {
+    if (groupRef.current) {
       const targetY = d > 0 ? (isMobile ? -1.4 : -1) : -30;
       groupRef.current.position.y = targetY;
-      groupRef.current.visible = d > 0;
     }
 
-    if (titleRef.current) {
+    if (titleRef.current && d > 0) {
       titleRef.current.children.forEach((text, i) => {
         const diffX = isMobile ? 0.4 : 0.8;
         const diffY = isMobile ? 0.48 : 0.64;
 
-        // Phase 1: Diagonal fall
         const fallProgress = Math.min(1, d / 0.7);
         const yFall = Math.max(Math.min((1 - fallProgress) * (10 - i), 10), isMobile ? 1.0 : 0.5);
 
-        // Phase 2: Shift horizontal to vertical one by one
-        // Complete the animation by d=1.0. Total duration is 0.3.
-        // Stagger by 0.02 * 9 letters = 0.18. Individual duration = 0.12.
         const shiftStart = 0.4 + i * 0.02;
         const shiftProgress = Math.min(1, Math.max(0, (d - shiftStart) / 0.12));
         const smoothEase = shiftProgress * shiftProgress * (3 - 2 * shiftProgress);
 
-        const finalX = -1; // used for desktop only
+        const finalX = -1;
         const finalY = isMobile ? 0.3 : -i * diffY;
 
         const targetX = isMobile ? (i * diffX) : (i * diffX) * (1 - smoothEase) + finalX * smoothEase;

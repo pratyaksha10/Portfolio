@@ -1,8 +1,9 @@
 'use client';
 
 import { useGSAP } from "@gsap/react";
-import { AdaptiveDpr, Preload, ScrollControls, useProgress } from "@react-three/drei";
+import { AdaptiveDpr, AdaptiveEvents, PerformanceMonitor, Preload, ScrollControls, useProgress } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
+import * as THREE from 'three';
 import gsap from "gsap";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { isMobile } from "react-device-detect";
@@ -21,6 +22,7 @@ const CanvasLoader = (props: { children: React.ReactNode }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const backgroundColor = useThemeStore((state) => state.theme.color);
   const { progress } = useProgress();
+  const [dpr, setDpr] = useState(isMobile ? 1 : 1.5);
   const [canvasStyle, setCanvasStyle] = useState<React.CSSProperties>({
     position: "absolute",
     top: 0,
@@ -71,11 +73,18 @@ const CanvasLoader = (props: { children: React.ReactNode }) => {
     <div className="h-[100dvh] wrapper relative">
       <div className="h-[100dvh] relative" ref={ref}>
         <Canvas className="base-canvas"
-          shadows
+          shadows={{ type: THREE.PCFSoftShadowMap }}
           style={canvasStyle}
           ref={canvasRef}
-          dpr={isMobile ? [1, 1.5] : [1, 2]}
-          gl={isMobile ? { antialias: false, powerPreference: 'high-performance' } : { antialias: true }}>
+          dpr={dpr}
+          gl={{ 
+            antialias: !isMobile, 
+            powerPreference: 'high-performance',
+            stencil: false,
+            depth: true,
+            alpha: false
+          }}>
+          <PerformanceMonitor onDecline={() => setDpr(1)} />
           {/* <Perf/> */}
           <Suspense fallback={null}>
             <ambientLight intensity={0.5} />
@@ -88,6 +97,7 @@ const CanvasLoader = (props: { children: React.ReactNode }) => {
             <Preload all />
           </Suspense>
           <AdaptiveDpr pixelated />
+          <AdaptiveEvents />
         </Canvas>
         <ProgressLoader progress={progress} />
       </div>
