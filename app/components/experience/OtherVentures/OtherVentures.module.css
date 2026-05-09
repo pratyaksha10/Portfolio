@@ -1,0 +1,587 @@
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&display=swap");
+
+/* ── root overlay ────────────────────────────────────── */
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  font-family: "DM Mono", monospace;
+  overflow: hidden;
+
+  /* design tokens (scoped to this component) */
+  --ov-bg: #2c251d;
+  --ov-fg: #ede8df;
+  --ov-muted: #8a7b6e;
+  --ov-accent: #d4a84b;
+  --ov-card-bg: rgba(27, 24, 21, 0.82);
+  --ov-card-border: rgba(220, 179, 91, 0.2);
+  --hairline: 0.0625rem;
+  --ui-inset: 2rem;
+  --card-margin: 5rem;
+  --card-padding: 2rem;
+  --reveal-offset: 0.625rem;
+  --reveal-dur: 0.5s;
+
+  background: var(--ov-bg);
+  color: var(--ov-fg);
+}
+
+.bg {
+  display: none;
+  /* background handled by .root */
+}
+
+/* ── 3D cube scene ───────────────────────────────────── */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1100px;
+  pointer-events: none;
+}
+
+@media (max-width: 56.25em) {
+  .scene {
+    align-items: flex-start;
+    padding-top: 12.5vh;
+    /* Places the cube cleanly above the text box on mobile */
+  }
+}
+
+.cube {
+  --s: min(51.8vw, 51.8vh, 392px);
+  width: var(--s);
+  height: var(--s);
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(90deg) rotateY(0deg);
+  will-change: transform;
+}
+
+@media (max-width: 56.25em) {
+  .cube {
+    --s: min(49.4vw, 49.4vh, 332px);
+  }
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  backface-visibility: hidden;
+  background: repeating-linear-gradient(0deg,
+      rgba(255, 255, 255, 0.02) 0 1px,
+      transparent 1px 48px),
+    repeating-linear-gradient(90deg,
+      rgba(255, 255, 255, 0.02) 0 1px,
+      transparent 1px 48px),
+    #14100d;
+}
+
+.face img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.face:has(img) .facePh {
+  display: none;
+}
+
+.facePh {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.75rem;
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(2rem, 8vw, 5rem);
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* cube face transforms */
+.face_front {
+  transform: translateZ(calc(var(--s) / 2));
+}
+
+.face_back {
+  transform: rotateY(180deg) translateZ(calc(var(--s) / 2));
+}
+
+.face_right {
+  transform: rotateY(90deg) translateZ(calc(var(--s) / 2));
+}
+
+.face_left {
+  transform: rotateY(-90deg) translateZ(calc(var(--s) / 2));
+}
+
+.face_top {
+  transform: rotateX(-90deg) translateZ(calc(var(--s) / 2));
+}
+
+.face_bottom {
+  transform: rotateX(90deg) translateZ(calc(var(--s) / 2));
+}
+
+/* ── HUD ─────────────────────────────────────────────── */
+.hud {
+  position: fixed;
+  top: var(--ui-inset);
+  right: var(--ui-inset);
+  z-index: 10;
+  text-align: right;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--ov-muted);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.hudPct {
+  display: none;
+}
+
+.progressBar {
+  width: 7.5rem;
+  height: var(--hairline);
+  background: var(--ov-muted);
+  margin-top: 0.5rem;
+  margin-left: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.progressFill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  background: var(--ov-accent);
+  transition: width 0.1s linear;
+}
+
+.sceneLabel {
+  font-size: 0.6rem;
+  color: var(--ov-accent);
+  margin-top: 0.4rem;
+}
+
+/* ── nav dots ────────────────────────────────────────── */
+.sceneStrip {
+  position: fixed;
+  left: calc(var(--ui-inset) + 0.125rem);
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sceneDot {
+  display: block;
+  width: 0.25rem;
+  height: 0.25rem;
+  border-radius: 50%;
+  background: var(--ov-muted);
+  transition: background 0.3s, transform 0.3s;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.sceneDotActive {
+  background: var(--ov-accent);
+  transform: scale(1.8);
+}
+
+/* ── face caption ────────────────────────────────────── */
+.faceCaption {
+  position: fixed;
+  bottom: var(--ui-inset);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.faceCaptionNum {
+  font-size: 0.58rem;
+  letter-spacing: 0.28em;
+  color: var(--ov-accent);
+  text-transform: uppercase;
+  margin-bottom: 0.15rem;
+}
+
+.faceCaptionName {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: clamp(1.8rem, 5vw, 3.5rem);
+  letter-spacing: 0.08em;
+  color: var(--ov-muted);
+  opacity: 0.5;
+  line-height: 1;
+}
+
+/* ── credit ──────────────────────────────────────────── */
+.credit {
+  position: fixed;
+  right: var(--ui-inset);
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: right center;
+  z-index: 10;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.credit a {
+  color: var(--ov-muted);
+  text-decoration: none;
+}
+
+/* ── scroll container ────────────────────────────────── */
+.scrollContainer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: auto;
+  scroll-snap-type: y mandatory;
+
+  /* hide scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollContainer::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── sections ────────────────────────────────────────── */
+.section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 6rem calc(var(--card-margin) + var(--ui-inset)) 6rem var(--card-margin);
+  scroll-snap-align: start;
+}
+
+/* ── text cards ──────────────────────────────────────── */
+.textCard {
+  max-width: 23.75rem;
+  padding: 2.25rem var(--card-padding);
+  background: var(--ov-card-bg);
+  border-left: var(--hairline) solid var(--ov-card-border);
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  overflow: hidden;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.right {
+  margin-left: auto;
+  border-left: none;
+  border-right: var(--hairline) solid var(--ov-card-border);
+  text-align: right;
+}
+
+.right .hLine {
+  transform-origin: right;
+  margin-left: auto;
+}
+
+.right .ctaRow {
+  justify-content: flex-end;
+}
+
+.right .statRow {
+  justify-content: flex-end;
+}
+
+/* ── typography ──────────────────────────────────────── */
+.tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--ov-accent);
+  margin-bottom: 1.1rem;
+  /* reveal setup */
+  opacity: 0;
+  transform: translateY(var(--reveal-offset));
+  transition: opacity var(--reveal-dur) ease,
+    transform var(--reveal-dur) ease;
+}
+
+.heading {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  line-height: 0.92;
+  /* reveal setup */
+  opacity: 0;
+  transform: translateY(1.125rem);
+  transition: opacity var(--reveal-dur) ease 0.08s,
+    transform var(--reveal-dur) ease 0.08s;
+}
+
+h1.heading {
+  font-size: clamp(3rem, 8vw, 6.5rem);
+}
+
+h2.heading {
+  font-size: clamp(2.2rem, 5vw, 4rem);
+}
+
+.bodyText {
+  font-size: 0.78rem;
+  line-height: 1.8;
+  color: rgba(237, 232, 223, 0.55);
+  margin-top: 1.25rem;
+  /* reveal setup */
+  opacity: 0;
+  transform: translateY(var(--reveal-offset));
+  transition: opacity var(--reveal-dur) ease 0.2s,
+    transform var(--reveal-dur) ease 0.2s;
+}
+
+.hLine {
+  width: 3.125rem;
+  height: var(--hairline);
+  background: var(--ov-accent);
+  margin-bottom: 1.2rem;
+  transform-origin: left;
+  /* reveal setup */
+  opacity: 0;
+  transform: scaleX(0);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* ── stats ────────────────────────────────────────────── */
+.statRow {
+  display: flex;
+  gap: 2.5rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+  /* reveal setup */
+  opacity: 0;
+  transform: translateY(var(--reveal-offset));
+  transition: opacity var(--reveal-dur) ease 0.3s,
+    transform var(--reveal-dur) ease 0.3s;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.statNum {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 2.2rem;
+  color: var(--ov-accent);
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ov-muted);
+}
+
+/* ── CTAs ─────────────────────────────────────────────── */
+.ctaRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.25rem;
+  border: var(--hairline) solid var(--ov-accent);
+  color: var(--ov-accent);
+  font-family: "DM Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  /* reveal setup */
+  opacity: 0;
+  transform: translateY(var(--reveal-offset));
+}
+
+.cta:hover {
+  background: var(--ov-accent);
+  color: var(--ov-bg);
+}
+
+.cta svg {
+  width: 0.6875rem;
+  height: 0.6875rem;
+}
+
+.ctaBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.25rem;
+  border: var(--hairline) solid rgba(138, 123, 110, 0.45);
+  color: var(--ov-muted);
+  font-family: "DM Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  /* reveal setup */
+  opacity: 0;
+  transform: translateY(var(--reveal-offset));
+}
+
+.ctaBack:hover {
+  background: rgba(138, 123, 110, 0.12);
+  border-color: var(--ov-muted);
+  color: var(--ov-fg);
+}
+
+.ctaBack svg {
+  width: 0.6875rem;
+  height: 0.6875rem;
+}
+
+/* shared CTA reveal transition */
+.cta,
+.ctaBack {
+  transition: opacity var(--reveal-dur) ease 0.35s,
+    transform var(--reveal-dur) ease 0.35s, background 0.2s, color 0.2s,
+    border-color 0.2s;
+}
+
+/* ── reveal states ───────────────────────────────────── */
+.visible {
+  opacity: 1 !important;
+  transform: translateY(0) scaleX(1) !important;
+}
+
+/* ── responsive ──────────────────────────────────────── */
+@media (max-width: 56.25em) {
+  .root {
+    --ui-inset: 1rem;
+    --card-margin: 1.5rem;
+    --card-padding: 1.25rem;
+  }
+
+  .sceneStrip {
+    display: none;
+  }
+
+  .section {
+    min-height: 100vh;
+    align-items: flex-end;
+    padding: 0 var(--card-margin) 5.5rem;
+  }
+
+  .section:first-child {
+    min-height: 100vh;
+    align-items: flex-end;
+    padding: 0 1.5rem 5.5rem;
+  }
+
+  .textCard,
+  .textCard.right {
+    max-width: 100%;
+    margin-inline: auto;
+    padding: 1.5rem var(--card-padding);
+  }
+
+  .bodyText {
+    line-height: 1.55;
+  }
+
+  .statRow {
+    gap: 1.5rem;
+    margin-top: 1.25rem;
+  }
+
+  .ctaRow {
+    display: none;
+  }
+
+  .faceCaption,
+  .sceneLabel {
+    display: none;
+  }
+
+  .hud {
+    top: auto;
+    bottom: 1.5rem;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  .progressBar {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.buyNowBtn {
+  position: fixed;
+  top: var(--ui-inset);
+  left: calc(var(--card-margin) + var(--card-padding));
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.25rem;
+  border: 2px solid var(--ov-accent);
+  background: var(--ov-accent);
+  color: var(--ov-bg);
+  font-family: "DM Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.3s;
+  pointer-events: auto;
+}
+
+.buyNowBtn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.buyNowBtn svg {
+  width: 0.6875rem;
+  height: 0.6875rem;
+}
+
+@media (max-width: 56.25em) {
+  .buyNowBtn {
+    left: 1.5rem;
+    top: 1.5rem;
+  }
+}
