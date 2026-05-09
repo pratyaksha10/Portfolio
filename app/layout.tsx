@@ -95,7 +95,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="overscroll-y-none">
-      <head>
+      <body
+        className={`${soriaFont.variable} ${vercettiFont.variable} font-sans antialiased`}
+      >
         <Script
           strategy="afterInteractive"
           src={`https://www.googletagmanager.com/gtag/js?id=G-WQVBC5EPNB`}
@@ -132,10 +134,6 @@ export default function RootLayout({
             })
           }}
         />
-      </head>
-      <body
-        className={`${soriaFont.variable} ${vercettiFont.variable} font-sans antialiased`}
-      >
         {children}
         <FluidCursorTrailWrapper />
         <ExperienceCursor />
